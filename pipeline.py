@@ -114,10 +114,10 @@ if __name__ == '__main__':
 
     # Paths
     print('[WEEDS] Loading paths for CSV files, Infer, BBox and Check photos')
-    path_to_csv = '/home/leandrovrabelo/Documentos/weed_detection/saved_files/csv/'
-    path_to_photos = '/home/leandrovrabelo/Documentos/weed_detection/saved_files/fotos/'
-    path_to_bbox_photos = '/home/leandrovrabelo/Documentos/weed_detection/saved_files/bbox_photo/'
-    path_to_check_photos = '/home/leandrovrabelo/Documentos/weed_detection/saved_files/check_photo/'
+    path_to_csv = '/PATHTOSAVEFILES/weed_detection/saved_files/csv/'
+    path_to_photos = '/PATHTOSAVEFILES/weed_detection/saved_files/fotos/'
+    path_to_bbox_photos = '/PATHTOSAVEFILES/weed_detection/saved_files/bbox_photo/'
+    path_to_check_photos = '/PATHTOSAVEFILES/weed_detection/saved_files/check_photo/'
 
     # Creating a CSV file
     print('[WEEDS] Creating a CSV FILE')
