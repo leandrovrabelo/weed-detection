@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
-map_path = '/Users/lvrsilva/OneDrive/Projeto_Weed_Detection/2020-08-03-bbox-modulo-01.csv'
+map_path = '/PATHTOCSV/2020-08-03-bbox-modulo-01.csv'
 # Each photo has 80 centimeters of height
 # The length has to be inserted
 # You will need to resize the 300 x 300 photo to the length and height of the real photo
