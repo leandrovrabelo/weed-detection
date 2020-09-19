@@ -172,10 +172,10 @@ if __name__ == '__main__':
     GPIO.setup(red_pins, GPIO.OUT, initial=GPIO.LOW)
     print(f'[WEEDS] Loading the SECOND line sprayer as OUTPUT with the following GPIO pins: {red_pins}')
     
-    # print('[WEEDS] Preparing to remove air from the sprayers')
-    # remove_air_sprays(sprayer_blue=blue_pins, 
-    #                     sprayer_red=red_pins)
-    # print('[WEEDS] Air removal proccess completed')
+    print('[WEEDS] Preparing to remove air from the sprayers')
+    remove_air_sprays(sprayer_blue=blue_pins,
+                      sprayer_red=red_pins)
+    print('[WEEDS] Air removal proccess completed')
 
     print('[WEEDS] THE SYSTEM IS READY TO WORK')
 
@@ -200,7 +200,6 @@ if __name__ == '__main__':
 
             break
 
-        # INSERIR VALORES AQUI
         (curr_position, 
         infer_trigger, 
         check_trigger) = mov_detector(
@@ -215,6 +214,7 @@ if __name__ == '__main__':
 
         # print('[WEEDS] Position:', curr_position,', Infer Trigger:', infer_trigger,', Check Trigger:', check_trigger)
         
+        # Grabbing inference photo and the map
         (frame, 
         photo_name, 
         box_map) = camera_inference(
@@ -228,7 +228,8 @@ if __name__ == '__main__':
                                     path_to_csv=csv_file, 
                                     cut_width=value_to_cut_usb_width_photo, 
                                     reshape_photo=reshape_value)
-
+        
+        # resizing the maps according to the quantities of solenoid valves (sprayer)
         (resized_bbox_map, 
         calibrated_bbox_map) = resize_adjust_bbox_map(
                                                     bbox_map=box_map, 
@@ -241,7 +242,8 @@ if __name__ == '__main__':
                                                     phis_dist=dist_infer_spray, 
                                                     take_photo=infer_trigger, 
                                                     convertion_base=walked_positions)
-
+        
+        # spraying fuction
         spray(box_to_print=box_to_print, 
             position=curr_position, 
             sprayer_blue=blue_dict, 
@@ -259,7 +261,8 @@ if __name__ == '__main__':
             box_to_print = np.insert(calibrated_bbox_map,-1,box_to_print, axis=0)
     
             print('[WEEDS] len box to print ',len(box_to_print),'and shape ',box_to_print.shape)
-
+        
+        # Checking the sprays to calibrate the device automatically
         (check_resized_map, 
         check_photos_qtt) = check_spray(frame=check_photo, 
                                         save_check_photo=True, 
