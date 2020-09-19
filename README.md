@@ -6,7 +6,6 @@ Inference on my trained algorithm to identify SugarCane plant and weeds with Lon
 [![Weed Detection](/files/image.png)](https://youtu.be/RE5kCkVsjOo)
 
 For inference:
-
 ```
 python3 pipeline.py
 ```
