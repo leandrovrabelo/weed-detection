@@ -1,5 +1,5 @@
-# Weed Detection
-Code to deploy Artificial Intelligence algorithm in the Edge (Jetson Nano) to detect weed in the field and spray herbicides just on it.
+# Weed Detection in a Jetson Nano Device
+Code to deploy Artificial Intelligence algorithm in the Edge to detect weed in the field and spray herbicides just on it.
 
 This repository will show all steps to create an algorithm and assemble a device to spray herbicides on the field.
 
