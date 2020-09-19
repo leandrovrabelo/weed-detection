@@ -47,9 +47,6 @@ def camera_inference(frame=0,
         frame = frame[:,cut_width:frame.shape[1]]
         print('WIDTH AND HEIGHT AFTER CUT', frame.shape[0], frame.shape[1])  
         
-        # Flipping image
-        frame = cv2.flip(frame, 1)
-        
         # saving the photo for later analysis
         file_simple = path_photo + f'{photo_name}.jpg'
         cv2.imwrite(file_simple, frame)
