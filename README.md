@@ -1,3 +1,9 @@
+
+For inference:
+```
+python3 pipeline.py
+```
+
 # Weed Detection in a Jetson Nano Device
 Code to deploy Artificial Intelligence algorithm in the Edge to detect weed in the field and spray herbicides just on it.
 
@@ -10,8 +16,3 @@ It's a complete pipeline to detect, spray herbicides, check it and calibrate. Al
 Inference on my trained algorithm to identify SugarCane plant and weeds with Long and short leaves:
 
 [![Weed Detection](/files/image.png)](https://youtu.be/RE5kCkVsjOo)
-
-For inference:
-```
-python3 pipeline.py
-```
