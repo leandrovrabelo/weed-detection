@@ -6,13 +6,23 @@ def set_dimentions(desired_height=80,
                     desired_width=120, 
                     infer_stick=50, 
                     check_stick=90, 
-                    equip_depth=105):
+                    distance_from_floor=105):
 
     # TO DO: CALCULATE THE DISTANCE BETWEEN THE MODULES ACCORDING TO THE HEIGHT OF EACH CAMERAS
 
-    ''' Given the desired height of the camera, it will return the depth that the CSI and USB 
+    ''' 
+    Given the desired height in the photo, it will return the depth that the CSI and USB 
     cameras must have and also the values to be used to cut the photo taken to have de desired 
-    width with an aditional margin of 10%'''
+    width with an aditional margin of 10%
+    
+    params:
+    -----------
+        desired_height: The desired height in cm that the photo will have
+        desired_width: The desired width in cm that the photo will have
+        infer_stick: The length in cm of the stick used to take a picture for inference
+        check_stick: The length in cm of the stick used to take a picture for checage/calibration
+        distance_from_floor: This is the distance in cm from the floor that the equipment will have
+    '''
     
     # Measurements done for USB camera (height and width)
     usb_height_basis = np.arctan(29.25/77) 
@@ -27,7 +37,7 @@ def set_dimentions(desired_height=80,
     # We will use half of the result to cut it from the left and right of the photo
     # We will also ADD 10% for security margin
     usb_width_dif = int(((usb_width - desired_width)) / 1.1)
-    print(f'[WEEDS] To obtain a height of {desired_height} cm, put the USB depth at {round(usb_cam_depth,2)} cm')
+    print(f'[WEEDS] To obtain a height of {desired_height} cm, put the USB height at {round(usb_cam_depth,2)} cm from the floor')
     print(f'[WEEDS] The resultant width for the USB camera was {int(usb_width)} cm')
     print(f'[WEEDS] Use the value of {usb_width_dif} cm to cut the left side of the USB photos before resize it\n')
 
@@ -45,21 +55,18 @@ def set_dimentions(desired_height=80,
     # We will use half of the result to cut it from the left and right of the photo
     # We will also ADD 10% for security margin
     csi_width_dif = int(((csi_width - desired_width)) / 1.1)
-    print(f'[WEEDS] To obtain a height of {desired_height} put the CSI depth at {round(csi_cam_depth,2)} cm')
+    print(f'[WEEDS] To obtain a height of {desired_height} put the CSI height at {round(csi_cam_depth,2)} cm from the floor')
     print(f'[WEEDS] The resultant width for the CSI camera was {int(csi_width)} cm')
     print(f'[WEEDS] Use the value of {csi_width_dif} cm to cut the left side of the CSI photos before resize it\n')
 
-    # Measuring the equipment size according to the angle of each stike (infer and check sticks - they'll be with the same size)
-    usb_depth_dif = np.abs(equip_depth - usb_cam_depth)
-    csi_depth_dif = np.abs(equip_depth - csi_cam_depth)
+    # Measuring the equipment size according to the angle of each stick (infer and check sticks - they'll be with the same size)
+    usb_depth_dif = np.abs(distance_from_floor - usb_cam_depth)
+    csi_depth_dif = np.abs(distance_from_floor - csi_cam_depth)
+   
     # Calculating the angle of the right angle, I have the hypotenuse (stick size) and one cateto (depth dif)
     new_usb_stick_size = np.sqrt(infer_stick**2 - usb_depth_dif**2)
     new_csi_stick_size = np.sqrt(check_stick**2 - csi_depth_dif**2)
-    print(f'[WEEDS] The distance from the beginning to the end in stick of the USB camera is {round(new_usb_stick_size,2)} cm')
-    print(f'[WEEDS] The distance from the beginning to the end in stick of the CSI camera is {round(new_csi_stick_size,2)} cm')
+    print(f'[WEEDS] The distance from the beginning to the end in the stick of the USB camera is {round(new_usb_stick_size,2)} cm')
+    print(f'[WEEDS] The distance from the beginning to the end in the stick of the CSI camera is {round(new_csi_stick_size,2)} cm')
 
     return usb_width_dif, csi_width_dif, new_usb_stick_size, new_csi_stick_size
-
-if __name__ == '__main__':
-
-    set_dimentions()
