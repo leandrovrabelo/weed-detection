@@ -11,10 +11,10 @@ def resize_adjust_bbox_map(bbox_map=0,
                     show_map=False, 
                     phis_dist=0, 
                     photo_position_ref=0,
-                    take_photo=False, 
+                    adjust_map=False, 
                     count_photos=0, 
                     convertion_base=0):
-    # take_photo = 'infer_trigger' from mov_detect
+
     '''Resizing the bounding box to fit the sprayers quantities.
     After splitting the bounding box, the max values for each line will be considered.
     
@@ -35,17 +35,20 @@ def resize_adjust_bbox_map(bbox_map=0,
     -----------
     return: new bounding box with RESIZED columns (this is the real basis)
     return: new bounding box with ADJUSTED columns (this is the basis to be sprayed)'''
-    if take_photo:
+    if adjust_map:
 
         count_photos = int(photo_position_ref // convertion_base)
 
-        #Splitting the bounding boxes according to the spray qtt
+        #Splitting the bounding boxes according to the spray qtt, we will have 
+        # the same qtt of columns of sprayers in one line, these columns will have different values
         cols = np.array(np.split(bbox_map, sprayers_qtt, axis=1))
 
-        #Getting the max values of each cols
+        #Getting the max values of each cols, if there is something above 0 there will prevail to use
+        # for spraying
         max_value_col = np.array([np.max(x, axis=1) for x in cols]).T
 
-        #Splitting the bounding boxes according to the holes numbers in the disk
+        #Splitting the bounding boxes according to the holes numbers in one picture 
+        # convertion_base means how many steps are necessary to walk through the distance of a picture
         lines = np.array(np.split(max_value_col, convertion_base, axis=0))
 
         #Getting the max values of each cols
