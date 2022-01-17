@@ -5,15 +5,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
-map_path = '/PATHTOCSV/2020-08-03-bbox-modulo-01.csv'
-# Each photo has 80 centimeters of height
-# The length has to be inserted
-# You will need to resize the 300 x 300 photo to the length and height of the real photo
-height = 80 #cm
-length = 120 #cm
-
-def visualize_map(path=map_path, height_cm=height, length_cm=length, save_photo=True):
-
+def visualize_map(path='', height_cm=80, length_cm=120, save_photo=True, cm_hole=0):
+    
+    ''' 
+    By default each photo has 80 centimeters of height and 120 cm of lenght, you can change it to the desired
+    photo dimentions, it has to have the real dimention taken in the photo.
+    You will need to resize the 300 x 300 photo to the length and height of the real photo
+    Parameters:
+            path: The path for the CSV file to be visualized
+            height_cm: The desired height of the detected object
+            lenght_cm: The desired length of the detected object
+            save_photo: boolean, if True it will save a simple image of the detections in the field.
+            cm_hole: Information related to each step to convert the values from position to cm
+    '''
     class_info = ['dontcare','Short', 'Long','Cane']
 
     weed_map = pd.read_csv(path)
@@ -21,12 +25,15 @@ def visualize_map(path=map_path, height_cm=height, length_cm=length, save_photo=
     photo_height_dim = weed_map['height'][0]
     photo_width_dim = weed_map['width'][0]
 
+    # Resizing the photo dimentions to the desired cm
     weed_map['height photo'] = (weed_map['ymax'] - weed_map['ymin']) / photo_height_dim * height_cm
     weed_map['width photo'] = (weed_map['xmax'] - weed_map['xmin']) / photo_width_dim * length_cm
+    
+    # Getting the total area
     weed_map['area in cm2'] = weed_map['height photo'] * weed_map['width photo']
 
     # The total distance traveled is the last position times the height
-    max_distance = max(weed_map['position']) / 100 * height_cm
+    max_distance = max(weed_map['position']) * cm_hole / 100 * height_cm
     print(f'\n The distance traveled was {max_distance/100} meters \n')
 
     base_map = np.zeros((int(photo_width_dim * max(weed_map['position']/100)),
@@ -74,12 +81,8 @@ def visualize_map(path=map_path, height_cm=height, length_cm=length, save_photo=
     weed_info['Mean Area cm2'] = round(weed_map.groupby('class').mean()['area in cm2'],2)
     weed_info['Total Area cm2'] = weed_map.groupby('class').sum()['area in cm2']
 
-    # Renaming the indes
+    # Renaming the index
     for i in range(0,len(weed_info)):
             weed_info.rename(index={weed_info.index[i]: class_info[i+1]}, inplace=True)
 
     print(weed_info)
-
-if __name__ == '__main__':
-
-    visualize_map()
