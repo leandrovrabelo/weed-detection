@@ -1,70 +1,88 @@
 #!/usr/bin/python3
 
-import Jetson.GPIO as GPIO
-from time import sleep
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import cv2
 
-def spray(box_to_print=None, 
-            front_sprayer=0, 
-            back_sprayer=0, 
-            position=0, 
-            sleeping=0,
-            distance_corretion=0):
-    '''
-    After resizing the map to the quantity of sprayers per line the
-    solenoid valves will open according to the position and kind of plant weed.
-    Parameters:
-        box_to_print: It's the variable containing the map with resized information to activate the sprayers
-        front_sprayer: The list contaning the GPIO entrance for the first line in relation to the device, it will spray for class 50
-        back_sprayer: The list contaning the GPIO entrance for the second line in relation to the device, it will spray for class 100
-        position: Current position (when we create the map, we arealdy put the distance from the map to the
-        first sprayer, the distance_corretion is used to consider the real distance from the first sprayer to 
-        the second.)
-        sleeping: Time interval between the activations
-        distance_corretion: is used to consider the real distance from the first sprayer to the second in steps.
-
-    Sprayers Design:
-                    
-                    (  ) - Camera
-                     ||
-                     ||
-                     ||
-                ------------
-                |   Jetson  |
-                |    Nano   |
-                |           |
-        ----------------------------
-        |   0   0   0   0   0   0   |   Front sprayer
-        |   0   0   0   0   0   0   |   Back Sprayer
-        ----------------------------
-    '''
-    sprayers = len(front_sprayer) 
+def visualize_map(path='', height_cm=80, length_cm=120, save_photo=True, cm_hole=0):
     
-    try:
-        print(f'[WEEDS] Spraying at position {position}')
-        print('Values sprayed \n',box_to_print[-2-position:-position,:])
-        print(' ', box_to_print[-position,:],'<----- Spraying Class 50 here')
-        print(' ', box_to_print[-position+distance_corretion,:],'<----- Spraying Class 100 here')
-        print(box_to_print[-position+1+distance_corretion:-position+3+distance_corretion,:])
+    ''' 
+    By default each photo has 80 centimeters of height and 120 cm of lenght, you can change it to the desired
+    photo dimentions, it has to have the real dimention taken in the photo.
+    You will need to resize the 300 x 300 photo to the length and height of the real photo
+    Parameters:
+            path: The path for the CSV file to be visualized
+            height_cm: The desired height of the detected object
+            lenght_cm: The desired length of the detected object
+            save_photo: boolean, if True it will save a simple image of the detections in the field.
+            cm_hole: Information related to each step to convert the values from position to cm
+    '''
+    class_info = ['dontcare','Short', 'Long','Cane']
 
-        for pin in range(sprayers):
-            
-            # This is a workaround, I know there is an easier alternative, i`ll go through it later
-            # Iterating through the first class == 50
-            if box_to_print[-position,pin] == 50:
-                GPIO.output(front_sprayer[pin], GPIO.HIGH)
-            else:
-                GPIO.output(front_sprayer[pin], GPIO.LOW)
+    weed_map = pd.read_csv(path)
+    
+    photo_height_dim = weed_map['height'][0]
+    photo_width_dim = weed_map['width'][0]
 
-            # Iterating through the second class == 100
-            # I put a delay of X steps using the distance_corretion  
-            if box_to_print[-position+distance_corretion,pin] == 100:
-                GPIO.output(back_sprayer[pin], GPIO.HIGH)         
-            else:
-                GPIO.output(back_sprayer[pin], GPIO.LOW)
-            sleep(sleeping)
+    # Resizing the photo dimentions to the desired cm
+    weed_map['height photo'] = (weed_map['ymax'] - weed_map['ymin']) / photo_height_dim * height_cm
+    weed_map['width photo'] = (weed_map['xmax'] - weed_map['xmin']) / photo_width_dim * length_cm
+    
+    # Getting the total area
+    weed_map['area in cm2'] = weed_map['height photo'] * weed_map['width photo']
 
-    except KeyboardInterrupt:
-        #Reset GPIO settings
-        GPIO.output(front_sprayer, GPIO.LOW)
-        GPIO.output(back_sprayer, GPIO.LOW)
-        GPIO.cleanup()
+    # The total distance traveled is the last position times the height
+    max_distance = max(weed_map['position']) * cm_hole / 100 * height_cm
+    print(f'\n The distance traveled was {max_distance/100} meters \n')
+
+    base_map = np.zeros((int(photo_width_dim * max(weed_map['position']/100)),
+                        photo_height_dim), np.uint8)
+
+    for i in range(len(weed_map)):
+        
+        position_reference = int(max(weed_map['position']/100) - weed_map['position'].iloc[i] / 100)
+        class_names = class_info[weed_map['class'].iloc[i]]
+        
+        # Drawing bounding box rectangle
+        base_map = cv2.rectangle(base_map, 
+                                (int(weed_map['xmin'].iloc[i]), int(weed_map['ymin'].iloc[i] + position_reference * 300)),
+                                (int(weed_map['xmax'].iloc[i]), int(weed_map['ymax'].iloc[i] + position_reference * 300)),
+                                int(weed_map['class'].iloc[i] * 50), -1)
+        
+        # Drawing an external rectangle
+        base_map = cv2.rectangle(base_map, 
+                                (int(weed_map['xmin'].iloc[i]), int(weed_map['ymin'].iloc[i] + position_reference * 300)),
+                                (int(weed_map['xmax'].iloc[i]), int(weed_map['ymax'].iloc[i] + position_reference * 300)),
+                                int(weed_map['class'].iloc[i] * 60), 2)    
+        # Class text
+        cv2.putText(base_map, 
+                    class_names, 
+                    (int(weed_map['xmin'].iloc[i]), int(weed_map['ymin'].iloc[i] + position_reference * 300) - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1, 
+                    int(weed_map['class'].iloc[i] * 50),
+                    2)
+        
+        # Drawing a line to separate each photo
+        base_map = cv2.rectangle(base_map, 
+                                (0, int(0 + position_reference * 300)),
+                                (300, int(300 + position_reference * 300)), 50, 2)
+
+    # plt.figure(figsize=(10,40))
+    # plt.imshow(base_map)
+    # plt.show()
+
+    if save_photo:
+        plt.imsave('map.jpg', base_map)
+
+    weed_info = pd.DataFrame()
+    weed_info['Weeds Detected'] = weed_map.groupby('class')['class'].count()
+    weed_info['Mean Area cm2'] = round(weed_map.groupby('class').mean()['area in cm2'],2)
+    weed_info['Total Area cm2'] = weed_map.groupby('class').sum()['area in cm2']
+
+    # Renaming the index
+    for i in range(0,len(weed_info)):
+            weed_info.rename(index={weed_info.index[i]: class_info[i+1]}, inplace=True)
+
+    print(weed_info)
