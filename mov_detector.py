@@ -6,12 +6,12 @@ import sys
 import numpy as np
 GPIO.setmode(GPIO.BOARD)
 
-#curr_position = 0 # Starting position
-#counter_speed = 0 
-#counter_infer_photo = 0
-#counter_check_photo = 0   
+curr_position = 0 # Starting position
+counter_speed = 0 
+counter_infer_photo = 0
+counter_check_photo = 0   
 start = datetime.now()
-#speed = 0
+speed = 0
 
 def mov_detector(gpio_sensor=0, 
                 cm_hole=0,
@@ -83,6 +83,8 @@ def mov_detector(gpio_sensor=0,
                     print('[WEEDS] Inference Photo Triggered')
                 else:
                     infer_trigger = False
+            else:
+                infer_trigger = False
 
             # Triggering Check Photo
             if curr_position >= start_photo_check:
@@ -92,7 +94,10 @@ def mov_detector(gpio_sensor=0,
                     print('[WEEDS] Check Photo Triggered')
                 else:
                     check_trigger = False
-            
+            else:
+                check_trigger = False
+
+
         print('[WEEDS] Position:', curr_position,', Infer Trigger:', infer_trigger,', Check Trigger:', check_trigger)
 
     except KeyboardInterrupt:
