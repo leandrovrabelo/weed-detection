@@ -3,19 +3,21 @@
 import Jetson.GPIO as GPIO
 from time import sleep
 import sys
+import serial
+from serial.tools import list_ports
 GPIO.setmode(GPIO.BOARD)
 
 def turn_on_pumps(left_pump=0,
-                right_punp=0):
+                right_pump=0):
     try:
         # Setting initial values for sprayers
         GPIO.setup(left_pump, GPIO.OUT, initial=GPIO.HIGH)
-        GPIO.setup(right_punp, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(right_pump, GPIO.OUT, initial=GPIO.HIGH)
 
     except KeyboardInterrupt:
         print("[WEEDS] Turning off the pumps.")
         GPIO.output(left_pump, GPIO.LOW)
-        GPIO.output(right_punp, GPIO.LOW)
+        GPIO.output(right_pump, GPIO.LOW)
         GPIO.cleanup()
         sys.exit()
 
@@ -66,3 +68,18 @@ def remove_air_sprays(front_sprayer=None,
         GPIO.output(back_sprayer, GPIO.LOW)
         GPIO.cleanup()
         sys.exit()
+
+def remove_air_sprays_arduino(time_interval=2, serial_port=0):
+    pin = 2
+    for i in range(12):
+
+        info = f'ON{pin}\n'
+        serial_port.write(info.encode('utf-8'))
+        sleep(time_interval)
+        print(f'PIN {pin} ON')
+
+        info = f'OFF{pin}\n'
+        serial_port.write(info.encode('utf-8'))
+        sleep(time_interval)
+        print(f'PIN {pin} OFF')
+        pin += 1
