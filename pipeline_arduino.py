@@ -1,4 +1,4 @@
-            #!/usr/bin/python3
+#!/usr/bin/python3
 import csv
 import sys
 import cv2
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     # Information related to the dimentions the rotary disk
     disk_radius = 5.10
-    disk_hole_qtt = 40
+    disk_hole_qtt = 20
     height = 80 # This is the desired height of the photo in cm
     width = 120 # This is the desired width of the photo in cm
     cm_hole = (2 * disk_radius * np.pi) / disk_hole_qtt # steps
@@ -69,14 +69,15 @@ if __name__ == '__main__':
     check_photos_qtt = 0
 
     # Information related to the dimensions of the equipment and values to take the photo
-    cameras_box_distance = 6 # this is the distance between the center of the box and the begining of the arm in cm
-    arm_holders_distance = 5 # this is the distance from the box to the hole of the end/begining of the arm
-    inference_stick = 50 # size of the arms used to hold the USB camera in cm
-    checking_stick = 90 # size of the arms used to hold the CSI camera in cm
+    cameras_box_distance = 2 # this is the distance between the center of the box and the begining of the arm in cm
+    arm_holders_distance = 1 # this is the distance from the box to the hole of the end/begining of the arm
+    inference_stick = 93 # size of the arms used to hold the USB camera in cm
+    checking_stick = 50 # size of the arms used to hold the CSI camera in cm
     distance_from_floor = 105 # This is the height from the ground until the beginning of the arms.
+    camera_position_correction = -int(height/2)
     equip_lenght = 70 # in cm
-    first_sprayer_dist = 2 # distance from the main equipment to the beginning of the first sprayer in cm
-    dist_first_second_sprayer = int(5/cm_hole) # This is the distance from the first to the second sprayer in STEPS
+    first_sprayer_dist = 10 # distance from the main equipment to the beginning of the first sprayer in cm
+    dist_first_second_sprayer = 0 #int(5/cm_hole) # This is the distance from the first to the second sprayer in STEPS
 
     (value_to_cut_usb_width_photo, 
     value_to_cut_csi_width_photo, 
@@ -89,10 +90,11 @@ if __name__ == '__main__':
                                         distance_from_floor=distance_from_floor)
 
     # These values will be converted from centimeters to steps (cm_holes)
-    start_infer_photo = int(20 / cm_hole) # Initial distance to start taking infer photos
+    start_infer_photo = int(10 / cm_hole) # Initial distance to start taking infer photos
 
     dist_infer_spray = int((cameras_box_distance + 
                             arm_holders_distance * 2 +
+                            camera_position_correction +
                             new_usb_arm_size + 
                             equip_lenght + 
                             first_sprayer_dist) / 
@@ -179,8 +181,10 @@ if __name__ == '__main__':
     left_pump_pin = 29 # GPIO Pin
     right_pump_pin = 31 # GPIO Pin
     print('[WEEDS] Turning on the pumps')
-    turn_on_pumps(left_pump=left_pump_pin,
-                    right_pump=right_pump_pin)
+    
+    #turn_on_pumps(left_pump=left_pump_pin,
+    #                right_pump=right_pump_pin)
+
     print('[WEEDS] Pumps are working properly')
     # Setting Serial ports
     ports = list_ports.comports()
@@ -194,7 +198,7 @@ if __name__ == '__main__':
     print('[WEEDS] Serial Ports created')
 
     print('[WEEDS] Preparing to remove air from the sprayers')
-    remove_air_sprays_arduino(time_interval=1, serial_port=serial)
+    #remove_air_sprays_arduino(time_interval=0.5, serial_port=serial)
     print('[WEEDS] Air removal proccess completed')
 
     print('[WEEDS] THE SYSTEM IS READY TO WORK')
@@ -279,7 +283,7 @@ if __name__ == '__main__':
 
         (check_resized_map, 
         check_photos_qtt) = check_spray(frame=check_photo, 
-                                        save_check_photo=True, 
+                                        save_check_photo=False, 
                                         trigger_photo=check_trigger, 
                                         path_check_photo=path_to_check_photos, 
                                         position=curr_position, 
