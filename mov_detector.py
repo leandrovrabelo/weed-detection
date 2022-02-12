@@ -39,6 +39,7 @@ def mov_detector(gpio_sensor=0,
     # TODO:
             Use two sensors to detect the direction of the disk
     '''
+    GPIO.setup(gpio_sensor, GPIO.IN)
     # Setting initial time to measure the speed
     global curr_position
     global counter_speed
