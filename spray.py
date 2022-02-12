@@ -107,8 +107,8 @@ def spray_arduino(box_to_print=None,
     
     print(f'[WEEDS] Spraying at position {position}')
     print('Values sprayed \n',box_to_print[-2-position:-position,:])
-    print(' ', box_to_print[-position,:],'<----- Spraying Class 50 here')
-    print(' ', box_to_print[-position+distance_corretion,:],'<----- Spraying Class 100 here')
+    print(' ', box_to_print[-position,:],'<----- Spraying Classes 50 and 100 here')
+    #print(' ', box_to_print[-position+distance_corretion,:],'<----- Spraying Class 100 here')
     print(box_to_print[-position+1+distance_corretion:-position+3+distance_corretion,:])
 
     '''
@@ -121,7 +121,7 @@ def spray_arduino(box_to_print=None,
         
         # This is a workaround, I know there is an easier alternative, i`ll go through it later
         # Iterating through the first class == 50
-        if box_to_print[-position,pin] == 50 and position%10 == 0:
+        if box_to_print[-position,pin] == 50 and position % 5 == 0:
             info_front = f'ON{pin_front}\n'
             serial_port.write(info_front.encode('utf-8'))
             sleep(0.015)
@@ -139,7 +139,7 @@ def spray_arduino(box_to_print=None,
 
         # Iterating through the second class == 100
         # I put a delay of X steps using the distance_corretion  
-        elif box_to_print[-position+distance_corretion,pin] == 100 and position%10 == 0:
+        elif box_to_print[-position+distance_corretion,pin] == 100 and position % 5 == 0:
             info_front = f'OFF{pin_front}\n'
             serial_port.write(info_front.encode('utf-8'))
             sleep(0.015)
