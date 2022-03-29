@@ -4,7 +4,7 @@ For inference:
 ```
 python3 pipeline_arduino.py
 ```
-Code to deploy Artificial Intelligence algorithm in the Edge to detect weed in the field and spray herbicides just on it.
+Code to deploy Artificial Intelligence algorithm in the Edge to detect weed in the field and spray specific herbicides to longleaf and shortleaf weeds.
 
 This repository will show all steps to create an algorithm and assemble a device to spray herbicides on the field.
 
